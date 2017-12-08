@@ -136,6 +136,7 @@ public class PieceWise {
                     }
                     Color newColor = new Color((int)hasil ,
                             (int)hasil, (int)hasil);
+//                    System.out.println(hasil);
                     image.setRGB(j, i, newColor.getRGB());
                 }
             }
