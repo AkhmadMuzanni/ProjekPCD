@@ -26,11 +26,11 @@ public class Filter {
         image = GrayScale.luminosityGray(image);        
 //        setHighPassFilter();
 //        setRobertFilter();
-//        setSobelFilter();
+        setSobelFilter();
 //        setMedianFilter();
-        setPrewittFilter();
+//        setPrewittFilter();
 //        setLaplacianFilter();
-        File output = new File("E:\\PrewittFilter-"+input.getName());
+        File output = new File("E:\\SobelFilter-"+input.getName());
         ImageIO.write(filtered, "jpg", output);
     }
     public void setHighPassFilter(){
