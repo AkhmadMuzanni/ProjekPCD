@@ -18,31 +18,88 @@ import javax.imageio.ImageIO;
  *
  * @author USER
  */
-public class Dilasi {
+public class Labeling {
     BufferedImage image, filtered, result;
     BufferedImage image2, filtered2, result2, hasilSubstraksi;
     int color;
-    double[][] filter, filter2;    
+    double[][] filter, filter2;
     double[][] strElement = {{1, 1, 1},{1, 1, 1},{1, 1, 1}};
-    public Dilasi() throws IOException{
-        File input = new File("E:\\2.jpg");
-        File input2 = new File("E:\\2.jpg");
+    int[][] label;
+    public Labeling() throws IOException{
+        File input = new File("E:\\testing.png");
+//        File input2 = new File("E:\\4.jpg");
         image = ImageIO.read(input);
-        image2 = ImageIO.read(input);
-        filtered = new BufferedImage(image.getWidth(), image.getHeight(), image.getType());
-        hasilSubstraksi = new BufferedImage(image.getWidth(), image.getHeight(), image.getType());
-        filtered2 = new BufferedImage(image2.getWidth(), image2.getHeight(), image2.getType());
-        filtered = GrayScale.luminosityGray(image);        
-        filtered = PieceWise.PieceWise(filtered);
-        filtered2 = PieceWise.PieceWise(filtered2);
-        for (int i = 0 ; i < 4 ; i++){
-            filtered = setStrElement(filtered, 0);
-            filtered2 = setStrElement(filtered2, 1);
+//        image2 = ImageIO.read(input);
+//        filtered = new BufferedImage(image.getWidth(), image.getHeight(), image.getType());
+        label = new int[image.getWidth()][image.getHeight()];
+        int jmlLabel = 1;
+        for (int i = 0 ; i < image.getHeight() ; i++){
+            for (int j = 0 ; j < image.getWidth() ; j++){
+//                System.out.println("Label " + jmlLabel + " " + j + " - " + i);
+                if (label[j][i] == 0){
+                    cariRegion(j,i,jmlLabel);
+                    if (jmlLabel == 1 || jmlLabel == 2 || jmlLabel == 3){
+                        File output = new File("E:\\Label 4-"+jmlLabel+input.getName());
+                        ImageIO.write(image, "jpg", output);
+                    }
+                    jmlLabel++;
+                }
+            }
         }
+        System.out.println(jmlLabel);
+//        hasilSubstraksi = new BufferedImage(image.getWidth(), image.getHeight(), image.getType());
+//        filtered2 = new BufferedImage(image2.getWidth(), image2.getHeight(), image2.getType());
+//        filtered = GrayScale.luminosityGray(image);        
+//        filtered = PieceWise.PieceWise(filtered);
+//        filtered2 = PieceWise.PieceWise(filtered2);
+//        filtered = setStrElement(filtered, 0);
+//        filtered2 = setStrElement(filtered2, 1);
 //        hasilSubstraksi = 
-        substraksiImage(filtered, filtered2);
-        File output = new File("E:\\Substraksi2-"+input.getName());
-        ImageIO.write(hasilSubstraksi, "jpg", output);
+//        substraksiImage(filtered, filtered2);
+        File output = new File("E:\\Labeling-"+input.getName());
+        ImageIO.write(image, "jpg", output);
+    }
+    public void cariRegion(int j, int i, int label){
+        if (this.label[j][i] == 0) {
+            int warna = getColorInt(j, i);
+            System.out.println(i + " " + j + " " + warna);
+            int adj1 = getColorInt(j-1, i);
+            int adj2 = getColorInt(j, i+1);
+            int adj3 = getColorInt(j+1, i);
+            int adj4 = getColorInt(j, i-1);
+    //        System.out.println(j + " - " + i);
+            this.label[j][i] = label;
+            Color newWarna = new Color (255,255,255);
+            image.setRGB(j, i, newWarna.getRGB());
+            if(warna == adj1){
+                if (getLabel(j-1,i) == 0){
+                    cariRegion(j-1,i,label);
+                }
+            }
+            if(warna == adj2){
+                if (getLabel(j,i+1) == 0){
+                    cariRegion(j,i+1,label);
+                }        }
+            if(warna == adj3){
+                if (getLabel(j+1,i) == 0){
+                    cariRegion(j+1,i,label);
+                }
+            }
+            if(warna == adj4){
+                if (getLabel(j,i+1) == 0){
+                    cariRegion(j,i+1,label);
+                }
+            }
+        }
+        
+//        Color warna = new Color(image.getRGB(j,i));
+//        Color warna = new Color(image.getRGB(j,i));
+//        Color warna = new Color(image.getRGB(j,i));
+//        for (int i = 0 ; i < image.getHeight() ; i++){
+//            for (int j = 0 ; j < image.getWidth() ; j++){
+//                
+//            }
+//        }
     }
     public BufferedImage setStrElement(BufferedImage image, int jenis){
         result = new BufferedImage(image.getWidth(), image.getHeight(), image.getType());        
@@ -162,7 +219,7 @@ public class Dilasi {
             return "";
         }
     }
-    public double getColorDouble(int x,int y){
+    public int getColorInt(int x, int y){
         try{
             Color asli = new Color(image.getRGB(x, y));
             return asli.getRed();
@@ -170,7 +227,17 @@ public class Dilasi {
             return color;
         }
     }
+    public int getLabel(int x, int y){
+        try{
+//            Color asli = new Color(image.getRGB(x, y));
+//            return asli.getRed();
+            return label[x][y];
+        } catch(ArrayIndexOutOfBoundsException ex){
+//            return color;
+            return -1;
+        }
+    }
     public static void main(String[] args) throws IOException {
-        Dilasi dilasi = new Dilasi();
+        Labeling dilasi = new Labeling();
     }
 }

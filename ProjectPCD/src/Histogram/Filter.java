@@ -21,16 +21,16 @@ public class Filter {
     int color;
     double[][] filter, filter2;
     public Filter() throws IOException{
-        File input = new File("E:\\1.jpg");
+        File input = new File("E:\\3.jpg");
         image = ImageIO.read(input);
         image = GrayScale.luminosityGray(image);        
 //        setHighPassFilter();
 //        setRobertFilter();
-        setSobelFilter();
-//        setMedianFilter();
+//        setSobelFilter();
+        setMedianFilter();
 //        setPrewittFilter();
 //        setLaplacianFilter();
-        File output = new File("E:\\SobelFilter-"+input.getName());
+        File output = new File("E:\\MedianFilter-"+input.getName());
         ImageIO.write(filtered, "jpg", output);
     }
     public void setHighPassFilter(){
