@@ -37,7 +37,7 @@ public class ImageNegatif {
                 }
             }
 
-            File ouptut = new File("E:\\negatif-"+input.getName());
+            File ouptut = new File("D:\\negatif-"+input.getName());
             ImageIO.write(image, "jpg", ouptut);
             System.out.println(input.getName());
         } catch (Exception e) {

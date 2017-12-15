@@ -9,12 +9,21 @@ import Morfologi.*;
 import Histogram.*;
 import ImageEnhancement.GrayScale;
 import ImageEnhancement.PieceWise;
+//import static MomenInvarian.Sql.con;
+//import static MomenInvarian.Sql.stm;
 import java.awt.Color;
 import java.awt.List;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Comparator;
 //import java.util.List;
 import javax.imageio.ImageIO;
 
@@ -45,33 +54,147 @@ class Node{
     }
     
 }
+class Gambar{
+    private String idGambar;
+    private double jarakGambar;
+    public Gambar(String idGambar, double jarakGambar){
+        this.idGambar = idGambar;
+        this.jarakGambar = jarakGambar;
+    }
+    public double getJarakGambar(){
+        return jarakGambar;
+    }
+    public String getIdGambar(){
+        return idGambar;
+    }
+}
 public class MomenInvarian {
     BufferedImage image, filtered, result;
     BufferedImage image2, filtered2, result2, hasilSubstraksi;
     int color;
     double[][] filter, filter2;    
     double[][] strElement = {{1, 1, 1},{1, 1, 1},{1, 1, 1}};
+    public static Connection con;
+    public static Statement stm;
+    String url ="jdbc:mysql://localhost/deteksikendaraan";
+    String user="root";
+    String pass="";
+    String driver = "com.mysql.jdbc.Driver";
+    ResultSet rs;
     ArrayList<Node> node = new ArrayList<Node>();
-    public MomenInvarian() throws IOException{
-        File input = new File("E:\\kotak.bmp");
-        image = ImageIO.read(input);
-        double[] ciriKotak = {getCiri1(), getCiri2(), getCiri3(), getCiri4(), getCiri5(), getCiri6(), getCiri7()};
-        input = new File("E:\\segitiga.bmp");
-        image = ImageIO.read(input);
-        double[] ciriSegitiga = {getCiri1(), getCiri2(), getCiri3(), getCiri4(), getCiri5(), getCiri6(), getCiri7()};
-        input = new File("E:\\lingkaran.bmp");
-        image = ImageIO.read(input);
-        double[] ciriLingkaran = {getCiri1(), getCiri2(), getCiri3(), getCiri4(), getCiri5(), getCiri6(), getCiri7()};
-        input = new File("E:\\kotak5.bmp");
+    public MomenInvarian() throws IOException, SQLException{
+        File input = new File("E:\\dataset/segitiga6.bmp");
         image = ImageIO.read(input);
         double[] ciriUji = {getCiri1(), getCiri2(), getCiri3(), getCiri4(), getCiri5(), getCiri6(), getCiri7()};
-        double jarakKotak = hitungJarak(ciriKotak, ciriUji);
-        double jarakSegitiga = hitungJarak(ciriSegitiga, ciriUji);
-        double jarakLingkaran = hitungJarak(ciriLingkaran, ciriUji);
-        System.out.println("Jarak ke Kotak " + jarakKotak);
-        System.out.println("Jarak ke Segitiga " + jarakSegitiga);
-        System.out.println("Jarak ke Lingkaran " + jarakLingkaran);        
-//        if ()
+        double jarak10 = hitungJarak(selectCiri("G010"), ciriUji);
+        double jarak11 = hitungJarak(selectCiri("G011"), ciriUji);
+        double jarak12 = hitungJarak(selectCiri("G012"), ciriUji);
+        double jarak13 = hitungJarak(selectCiri("G013"), ciriUji);
+        double jarak14 = hitungJarak(selectCiri("G014"), ciriUji);
+        double jarak15 = hitungJarak(selectCiri("G015"), ciriUji);
+        double jarak16 = hitungJarak(selectCiri("G016"), ciriUji);
+        double jarak17 = hitungJarak(selectCiri("G017"), ciriUji);
+        double jarak18 = hitungJarak(selectCiri("G018"), ciriUji);
+        double jarak19 = hitungJarak(selectCiri("G019"), ciriUji);
+        double jarak20 = hitungJarak(selectCiri("G020"), ciriUji);
+        double jarak21 = hitungJarak(selectCiri("G021"), ciriUji);
+        ArrayList<Gambar> listJarak = new ArrayList<Gambar>();
+        listJarak.add(new Gambar("G010", jarak10));
+        listJarak.add(new Gambar("G011", jarak11));
+        listJarak.add(new Gambar("G012", jarak12));
+        listJarak.add(new Gambar("G013", jarak13));
+        listJarak.add(new Gambar("G014", jarak14));
+        listJarak.add(new Gambar("G015", jarak15));
+        listJarak.add(new Gambar("G016", jarak16));
+        listJarak.add(new Gambar("G017", jarak17));
+        listJarak.add(new Gambar("G018", jarak18));
+        listJarak.add(new Gambar("G019", jarak19));
+        listJarak.add(new Gambar("G020", jarak20));
+        listJarak.add(new Gambar("G021", jarak21));
+        
+
+
+        Comparator<Gambar> c = (o1, o2) -> {
+            if (o1.getJarakGambar() < o2.getJarakGambar()){
+                return -1;
+            } else {
+                return 1;
+            }
+//            return 0; //To change body of generated lambdas, choose Tools | Templates.
+        };
+        listJarak.sort(c);
+        int k = 3;
+        for (int i = 0 ; i < listJarak.size() && i < k; i++){
+            System.out.println(listJarak.get(i).getIdGambar() + " - " + selectKelas(listJarak.get(i).getIdGambar()));
+            System.out.println(listJarak.get(i).getJarakGambar());
+        }
+        
+        // Untuk Upload ke database
+
+//        insertGambar("E:\\kotak4.bmp", 1);
+//        insertGambar("E:\\segitiga4.bmp", 2);
+    }
+    public void insertGambar(String file, int kelas) throws IOException, SQLException{
+//        File input = new File("E:\\kotak.bmp");
+        File input = new File(file);
+        image = ImageIO.read(input);
+        double[] ciriKotak = {getCiri1(), getCiri2(), getCiri3(), getCiri4(), getCiri5(), getCiri6(), getCiri7()};
+        con = DriverManager.getConnection(url, "root", "");
+        String query = " insert into gambar (alamatGambar, kelas, ciriPertama, ciriKedua, ciriKetiga, ciriKeempat, ciriKelima, ciriKeenam, ciriKetujuh)"
+          + " values (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        PreparedStatement preparedStmt = con.prepareStatement(query);
+        preparedStmt.setString (1, input.getPath());
+        preparedStmt.setInt (2, kelas);
+        preparedStmt.setDouble (3, ciriKotak[0]);
+        preparedStmt.setDouble (4, ciriKotak[1]);
+        preparedStmt.setDouble (5, ciriKotak[2]);
+        preparedStmt.setDouble (6, ciriKotak[3]);
+        preparedStmt.setDouble (7, ciriKotak[4]);
+        preparedStmt.setDouble (8, ciriKotak[5]);
+        preparedStmt.setDouble (9, ciriKotak[6]);
+        preparedStmt.execute();
+        con.close();
+    }
+    public double[] selectCiri(String i) throws SQLException{
+          con = DriverManager.getConnection(url, "root", "");
+          String query = "SELECT * FROM gambar where idGambar = '" + i + "'";
+          stm = con.createStatement();
+          rs = stm.executeQuery(query);
+          double ciriPertama = 0, ciriKedua = 0, ciriKetiga = 0, ciriKeempat = 0, ciriKelima = 0, ciriKeenam = 0, ciriKetujuh = 0;
+          while (rs.next())
+          {
+            ciriPertama = rs.getDouble("ciriPertama");
+            ciriKedua = rs.getDouble("ciriKedua");
+            ciriKetiga = rs.getDouble("ciriKetiga");
+            ciriKeempat = rs.getDouble("ciriKeempat");
+            ciriKelima = rs.getDouble("ciriKelima");
+            ciriKeenam = rs.getDouble("ciriKeenam");
+            ciriKetujuh = rs.getDouble("ciriKetujuh");
+          }
+          stm.close();
+          double[] arrayResult = {ciriPertama, ciriKedua, ciriKetiga, ciriKeempat, ciriKelima, ciriKeenam, ciriKetujuh};
+          return arrayResult;
+    }
+    public String selectKelas(String idGambar) throws SQLException{
+        con = DriverManager.getConnection(url, "root", "");
+          String query = "SELECT kelas FROM gambar where idGambar = '" + idGambar + "'";
+          stm = con.createStatement();
+          rs = stm.executeQuery(query);
+            int kelas = 0;
+          while (rs.next())
+          {
+            kelas = rs.getInt("kelas");
+          }
+          stm.close();
+          if (kelas == 1){
+              return "Kotak";
+          } else if (kelas == 2){
+              return "Segitiga";
+          } else if (kelas == 3){
+              return "Lingkaran";
+          } else {
+              return "-";
+          }
     }
     public int getMomenCitra(int p, int q){
         int result = 0;
@@ -167,7 +290,7 @@ public class MomenInvarian {
             return 0;
         }
     }    
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, SQLException {
         MomenInvarian momenInvarian = new MomenInvarian();
     }
 }
