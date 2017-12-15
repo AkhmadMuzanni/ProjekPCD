@@ -110,23 +110,37 @@ public class MomenInvarian {
         listJarak.add(new Gambar("G018", jarak18));
         listJarak.add(new Gambar("G019", jarak19));
         listJarak.add(new Gambar("G020", jarak20));
-        listJarak.add(new Gambar("G021", jarak21));
-        
+        listJarak.add(new Gambar("G021", jarak21));        
 
-
+        // Menentukan parameter perbandingan
         Comparator<Gambar> c = (o1, o2) -> {
             if (o1.getJarakGambar() < o2.getJarakGambar()){
                 return -1;
             } else {
                 return 1;
             }
-//            return 0; //To change body of generated lambdas, choose Tools | Templates.
         };
+        // Sorting jarak terdekat
         listJarak.sort(c);
-        int k = 3;
+        int k = 3, jmlKotak = 0, jmlSegitiga = 0, jmlLingkaran = 0;
         for (int i = 0 ; i < listJarak.size() && i < k; i++){
             System.out.println(listJarak.get(i).getIdGambar() + " - " + selectKelas(listJarak.get(i).getIdGambar()));
+            if (selectKelas(listJarak.get(i).getIdGambar()) == "Kotak"){
+                jmlKotak++;
+            } else if (selectKelas(listJarak.get(i).getIdGambar()) == "Segitiga"){
+                jmlSegitiga++;
+            } else if (selectKelas(listJarak.get(i).getIdGambar()) == "Lingkaran"){
+                jmlLingkaran++;
+            }
             System.out.println(listJarak.get(i).getJarakGambar());
+        }
+        int kelasTerpilih = Math.max(jmlKotak, Math.max(jmlSegitiga, jmlLingkaran));
+        if (kelasTerpilih == jmlKotak){
+            System.out.println("Objek Termasuk Kelas Kotak");
+        } else if (kelasTerpilih == jmlSegitiga){
+            System.out.println("Objek Termasuk Kelas Segitiga");
+        } else {
+            System.out.println("Objek Termasuk Kelas Lingkaran");
         }
         
         // Untuk Upload ke database
